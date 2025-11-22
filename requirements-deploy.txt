@@ -1,4 +1,7 @@
-# Core dependencies - install first
+# Deployment-ready requirements (without PyCaret)
+# PyCaret is only needed for model extraction, not for running the app
+
+# Core dependencies
 numpy==1.26.4
 pillow>=9.0.0,<11.0.0
 
@@ -20,12 +23,10 @@ opencv-python-headless>=4.8.0,<4.9.0
 xgboost>=1.7.0,<2.0.0
 joblib>=1.3.0
 
-# Deep learning - install torch before ultralytics
+# Deep learning
 torch>=2.1.0,<2.3.0
 ultralytics>=8.0.196,<8.2.0
 
 # Web framework
 streamlit>=1.28.0,<1.33.0
 
-# Note: pycaret is only needed for model extraction, not for running the app
-# If deployment fails, try removing pycaret as it has many dependencies
