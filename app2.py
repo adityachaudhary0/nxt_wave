@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import joblib
 import numpy as np
+from llm_advisor import get_ai_advice
 
 # Get the directory of the current script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -148,13 +149,66 @@ def app2():
     st.markdown("---")
     
     # Buttons with better styling
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     
     with col2:
         predict_btn = st.button('🔍 Predict Potability', use_container_width=True, type='primary')
     
     with col3:
         random_btn = st.button('🎲 Use Random Sample', use_container_width=True)
+    
+    with col4:
+        ask_ai_btn = st.button('🤖 Ask AI for Advice', use_container_width=True)
+    
+    # Check if inputs are provided (not all zeros and not default values)
+    def has_inputs(inputs_dict):
+        """Check if user has entered any meaningful values"""
+        # Check numeric values (not zero) and non-empty strings
+        for key, value in inputs_dict.items():
+            if key == 'Color':
+                if value and value != 'NaN':
+                    return True
+            elif isinstance(value, (int, float)):
+                if float(value) != 0.0:
+                    return True
+            elif value:
+                return True
+        return False
+    
+    # AI Advice Button Logic
+    if ask_ai_btn:
+        if not has_inputs(inputs):
+            st.warning("⚠️ **Please provide input values first!** Enter water quality parameters above before asking for AI advice.")
+        else:
+            st.markdown("---")
+            st.markdown("### 🤖 AI-Powered Improvement Advice")
+            
+            with st.spinner("Analyzing water parameters and generating recommendations..."):
+                # Convert inputs to float values for advice
+                inputs_for_advice = {k: float(v) if isinstance(v, (int, float)) else v for k, v in inputs.items()}
+                advice = get_ai_advice(inputs_for_advice, assessment_type="potability", use_llm=True)
+                
+                if advice:
+                    st.markdown("""
+                        <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                   border-radius: 10px; color: white; margin-top: 1rem;'>
+                            <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                            <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                    """, unsafe_allow_html=True)
+                    st.markdown(advice)
+                    st.markdown("</div></div>", unsafe_allow_html=True)
+                else:
+                    st.info("💡 AI advice is currently unavailable. Using rule-based recommendations.")
+                    rule_based_advice = get_ai_advice(inputs_for_advice, assessment_type="potability", use_llm=False)
+                    st.markdown(f"""
+                        <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                   border-radius: 10px; color: white; margin-top: 1rem;'>
+                            <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                            <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                                {rule_based_advice}
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
     
     # Prediction logic
     if predict_btn:
@@ -188,6 +242,37 @@ def app2():
                     </p>
                 </div>
             """, unsafe_allow_html=True)
+        
+        # AI Advice Section
+        st.markdown("---")
+        st.markdown("### 🤖 AI-Powered Improvement Advice")
+        
+        with st.spinner("Analyzing water parameters and generating recommendations..."):
+            # Convert inputs to float values for advice
+            inputs_for_advice = {k: float(v) if isinstance(v, (int, float)) else v for k, v in inputs.items()}
+            advice = get_ai_advice(inputs_for_advice, assessment_type="potability", use_llm=True)
+            
+            if advice:
+                st.markdown("""
+                    <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border-radius: 10px; color: white; margin-top: 1rem;'>
+                        <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                        <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                """, unsafe_allow_html=True)
+                st.markdown(advice)
+                st.markdown("</div></div>", unsafe_allow_html=True)
+            else:
+                st.info("💡 AI advice is currently unavailable. Using rule-based recommendations.")
+                rule_based_advice = get_ai_advice(inputs_for_advice, assessment_type="potability", use_llm=False)
+                st.markdown(f"""
+                    <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border-radius: 10px; color: white; margin-top: 1rem;'>
+                        <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                        <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                            {rule_based_advice}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
     
     if random_btn:
         data = test_df.sample(n=1)

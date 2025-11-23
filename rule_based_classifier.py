@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+from llm_advisor import get_ai_advice
 
 # Get the directory of the current script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -108,13 +109,54 @@ def rbc():
     st.markdown("---")
     
     # Buttons with better styling
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     
     with col2:
         predict_btn = st.button('🔍 Assess Water Quality', use_container_width=True, type='primary')
     
     with col3:
         random_btn = st.button('🎲 Use Random Sample', use_container_width=True)
+    
+    with col4:
+        ask_ai_btn = st.button('🤖 Ask AI for Advice', use_container_width=True)
+    
+    # Check if inputs are provided (not all zeros)
+    def has_inputs(inputs_dict):
+        """Check if user has entered any non-zero values"""
+        return any(float(v) != 0.0 for v in inputs_dict.values())
+    
+    # AI Advice Button Logic
+    if ask_ai_btn:
+        if not has_inputs(inputs):
+            st.warning("⚠️ **Please provide input values first!** Enter water quality parameters above before asking for AI advice.")
+        else:
+            st.markdown("---")
+            st.markdown("### 🤖 AI-Powered Improvement Advice")
+            
+            with st.spinner("Analyzing water parameters and generating recommendations..."):
+                advice = get_ai_advice(inputs, assessment_type="aquatic", use_llm=True)
+                
+                if advice:
+                    st.markdown("""
+                        <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                   border-radius: 10px; color: white; margin-top: 1rem;'>
+                            <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                            <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                    """, unsafe_allow_html=True)
+                    st.markdown(advice)
+                    st.markdown("</div></div>", unsafe_allow_html=True)
+                else:
+                    st.info("💡 AI advice is currently unavailable. Using rule-based recommendations.")
+                    rule_based_advice = get_ai_advice(inputs, assessment_type="aquatic", use_llm=False)
+                    st.markdown(f"""
+                        <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                   border-radius: 10px; color: white; margin-top: 1rem;'>
+                            <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                            <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                                {rule_based_advice}
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
     
     # Prediction logic
     if predict_btn:
@@ -146,6 +188,81 @@ def rbc():
                     </p>
                 </div>
             """, unsafe_allow_html=True)
+        
+        # AI Advice Section for random sample
+        st.markdown("---")
+        st.markdown("### 🤖 AI-Powered Improvement Advice")
+        
+        # Convert inputs_list back to dict for advice
+        inputs_dict = {
+            'pH': inputs_list[0],
+            'Iron': inputs_list[1],
+            'Nitrate': inputs_list[2],
+            'Chloride': inputs_list[3],
+            'Lead': inputs_list[4],
+            'Zinc': inputs_list[5],
+            'Turbidity': inputs_list[6],
+            'Fluoride': inputs_list[7],
+            'Copper': inputs_list[8],
+            'Sulfate': inputs_list[9],
+            'Chlorine': inputs_list[10],
+            'Manganese': inputs_list[11],
+            'Total Dissolved Solids': inputs_list[12]
+        }
+        
+        with st.spinner("Analyzing water parameters and generating recommendations..."):
+            advice = get_ai_advice(inputs_dict, assessment_type="aquatic", use_llm=True)
+            
+            if advice:
+                st.markdown("""
+                    <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border-radius: 10px; color: white; margin-top: 1rem;'>
+                        <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                        <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                """, unsafe_allow_html=True)
+                st.markdown(advice)
+                st.markdown("</div></div>", unsafe_allow_html=True)
+            else:
+                st.info("💡 AI advice is currently unavailable. Using rule-based recommendations.")
+                rule_based_advice = get_ai_advice(inputs_dict, assessment_type="aquatic", use_llm=False)
+                st.markdown(f"""
+                    <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border-radius: 10px; color: white; margin-top: 1rem;'>
+                        <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                        <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                            {rule_based_advice}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+        
+        # AI Advice Section
+        st.markdown("---")
+        st.markdown("### 🤖 AI-Powered Improvement Advice")
+        
+        with st.spinner("Analyzing water parameters and generating recommendations..."):
+            advice = get_ai_advice(inputs, assessment_type="aquatic", use_llm=True)
+            
+            if advice:
+                st.markdown("""
+                    <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border-radius: 10px; color: white; margin-top: 1rem;'>
+                        <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                        <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                """, unsafe_allow_html=True)
+                st.markdown(advice)
+                st.markdown("</div></div>", unsafe_allow_html=True)
+            else:
+                st.info("💡 AI advice is currently unavailable. Using rule-based recommendations.")
+                rule_based_advice = get_ai_advice(inputs, assessment_type="aquatic", use_llm=False)
+                st.markdown(f"""
+                    <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border-radius: 10px; color: white; margin-top: 1rem;'>
+                        <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                        <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                            {rule_based_advice}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
     
     if random_btn:
         data = test_df.sample(n=1)
@@ -199,3 +316,49 @@ def rbc():
                     </p>
                 </div>
             """, unsafe_allow_html=True)
+        
+        # AI Advice Section for random sample
+        st.markdown("---")
+        st.markdown("### 🤖 AI-Powered Improvement Advice")
+        
+        # Convert inputs_list back to dict for advice
+        inputs_dict = {
+            'pH': inputs_list[0],
+            'Iron': inputs_list[1],
+            'Nitrate': inputs_list[2],
+            'Chloride': inputs_list[3],
+            'Lead': inputs_list[4],
+            'Zinc': inputs_list[5],
+            'Turbidity': inputs_list[6],
+            'Fluoride': inputs_list[7],
+            'Copper': inputs_list[8],
+            'Sulfate': inputs_list[9],
+            'Chlorine': inputs_list[10],
+            'Manganese': inputs_list[11],
+            'Total Dissolved Solids': inputs_list[12]
+        }
+        
+        with st.spinner("Analyzing water parameters and generating recommendations..."):
+            advice = get_ai_advice(inputs_dict, assessment_type="aquatic", use_llm=True)
+            
+            if advice:
+                st.markdown("""
+                    <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border-radius: 10px; color: white; margin-top: 1rem;'>
+                        <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                        <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                """, unsafe_allow_html=True)
+                st.markdown(advice)
+                st.markdown("</div></div>", unsafe_allow_html=True)
+            else:
+                st.info("💡 AI advice is currently unavailable. Using rule-based recommendations.")
+                rule_based_advice = get_ai_advice(inputs_dict, assessment_type="aquatic", use_llm=False)
+                st.markdown(f"""
+                    <div style='padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                               border-radius: 10px; color: white; margin-top: 1rem;'>
+                        <h3 style='color: white; margin-top: 0;'>💡 Expert Recommendations</h3>
+                        <div style='color: rgba(255,255,255,0.95); line-height: 1.8; white-space: pre-wrap;'>
+                            {rule_based_advice}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)

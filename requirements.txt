@@ -27,5 +27,8 @@ ultralytics>=8.0.196,<8.2.0
 # Web framework
 streamlit>=1.28.0,<1.33.0
 
+# HTTP requests for LLM API
+requests>=2.28.0
+
 # Note: pycaret is only needed for model extraction, not for running the app
 # If deployment fails, try removing pycaret as it has many dependencies
